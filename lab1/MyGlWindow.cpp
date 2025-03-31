@@ -192,7 +192,6 @@ void MyGlWindow::test()
 
 void MyGlWindow::update()
 {
-
 	TimingData::get().update();
 
 	if (!run) 
@@ -200,8 +199,8 @@ void MyGlWindow::update()
 
 	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
 	if (duration <= 0.0f) return;
-
-
+	
+	m_mover.update(duration);
 }
 
 

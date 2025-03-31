@@ -15,7 +15,7 @@
 
 #include "stdio.h"
 #include "math.h"
-#include <cyclone.h>
+#include "cyclone.h"
 #include "3DUtils.h"
 
 #include "Viewer.h"
@@ -27,18 +27,46 @@
 
 class Mover {
 public:
-	cyclone::Vector3 position = { 0., 3., 0. };
+	cyclone::Particle particle;
+
 	float size = 2;
-	Mover() {};
+	Mover() {
+		particle.setPosition(0., 20., 0.);
+		particle.setVelocity(0., 0., 0.);
+		particle.setMass(1.);
+		particle.setDamping(0.99);
+		particle.setAcceleration(cyclone::Vector3::GRAVITY);
+	};
 	~Mover() {};
+	
+	void stop(){}
+	void update(float duration) {
+		//particle.addForce(cyclone::Vector3(1., 0., 0.));
+		particle.integrate(duration);
+
+		cyclone::Vector3 pos = particle.getPosition();
+		cyclone::Vector3 vel = particle.getVelocity();
+		if (pos.y <= 0 + size) {
+			pos.y = size;
+			vel.y = -vel.y;
+		}
+		if (pos.x + size >= 100) {
+			pos.x = 100 - size;
+			vel.x = -vel.x;
+		}
+		particle.setPosition(pos);
+		particle.setVelocity(vel);
+	}
 
 	void draw(int shadow) {
+		cyclone::Vector3 position = particle.getPosition();
+
 		if (shadow == 1) {
 			glColor3f(0.1f, 0.1f, 0.1f);
 		} else {
 			glColor3f(1.f, 0.1f, 0.1f);
 		}
-		glTranslated(position.x, position.y, position.z);
+		glTranslatef(position.x, position.y, position.z);
 		glutSolidSphere(size, 30, 30);
 	}
 };

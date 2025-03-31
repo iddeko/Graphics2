@@ -22,14 +22,13 @@ using namespace cyclone;
  * --------------------------------------------------------------------------
  */
 
+#include <iostream>
+
 void Particle::integrate(real duration)
 {
     // We don't integrate things with zero mass.
     if (inverseMass <= 0.0f) return;
-
     assert(duration > 0.0);
-
-   
 
     // Work out the acceleration from the force
     Vector3 resultingAcc = acceleration;
@@ -40,7 +39,6 @@ void Particle::integrate(real duration)
 
     // Impose drag.
     velocity *= real_pow(damping, duration);
-
 
     // Update linear position.
     position.addScaledVector(velocity, duration);
