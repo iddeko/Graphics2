@@ -32,10 +32,16 @@ public:
 	float size = 2;
 	Mover() {
 		particle.setPosition(0., 20., 0.);
-		particle.setVelocity(0., 0., 0.);
-		particle.setMass(1.);
-		particle.setDamping(0.99);
-		particle.setAcceleration(cyclone::Vector3::GRAVITY);
+		
+		particle.setMass(2.0f); // 2.0kg
+		particle.setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
+		particle.setAcceleration(0.0f, -1.0f, 0.0f);
+		particle.setDamping(0.99f);
+
+		//particle.setVelocity(0., 0., 0.);
+		//particle.setMass(1.);
+		//particle.setDamping(0.99);
+		//particle.setAcceleration(cyclone::Vector3::GRAVITY);
 	};
 	~Mover() {};
 	
@@ -66,7 +72,7 @@ public:
 		} else {
 			glColor3f(1.f, 0.1f, 0.1f);
 		}
-		glTranslatef(position.x, position.y, position.z);
+		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(size, 30, 30);
 	}
 };

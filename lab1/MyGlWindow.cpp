@@ -149,13 +149,14 @@ void MyGlWindow::draw()
 	glVertex3f(0, 0.1, 100);
 	glEnd();
 
+	/*
 	glLineWidth(5.0f);
 	glBegin(GL_LINES);
 		glColor3f(0, 1, 1);
 		glVertex3f(0, 0, 0);
 		glVertex3f(0, 100, 100);
 	glEnd();
-
+	*/
 
 	glDisable(GL_LIGHTING);
 	glEnable(GL_BLEND);
@@ -187,7 +188,7 @@ void MyGlWindow::draw()
 
 void MyGlWindow::test()
 {
-
+	m_mover = Mover();
 }
 
 void MyGlWindow::update()
