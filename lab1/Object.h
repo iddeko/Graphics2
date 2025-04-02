@@ -64,15 +64,18 @@ public:
 		particle.setVelocity(vel);
 	}
 
-	void draw(int shadow) {
+	void draw(int shadow, int name) {
 		cyclone::Vector3 position = particle.getPosition();
 
 		if (shadow == 1) {
+			glLoadName(0);
 			glColor3f(0.1f, 0.1f, 0.1f);
 		} else {
+			glLoadName(name);
 			glColor3f(1.f, 0.1f, 0.1f);
 		}
 		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(size, 30, 30);
+		glLoadName(0);
 	}
 };

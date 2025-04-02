@@ -43,7 +43,7 @@ private:
 
 	float fieldOfView;
 	Viewer *m_viewer;
-	Mover m_mover;
+	std::vector<Mover> movers;
 
 	void setProjection(int clearProjection = 1);
 	void getMouseNDC(float& x, float& y);

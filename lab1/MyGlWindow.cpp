@@ -29,7 +29,7 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	m_mover = Mover();
+	movers = { Mover() };
 
 	TimingData::init();
 	run = 0;
@@ -159,24 +159,26 @@ void MyGlWindow::draw()
 	*/
 
 	glDisable(GL_LIGHTING);
-	glEnable(GL_BLEND);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	for (unsigned int i = 0; i < movers.size(); i++) {
+		glEnable(GL_BLEND);
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-	//draw shadow
-	setupShadows();
-	m_mover.draw(1);
-	unsetupShadows();
+		//draw shadow
+		setupShadows();
+		movers[i].draw(1, i + 1);
+		unsetupShadows();
 
-	glDisable(GL_BLEND);
+		glDisable(GL_BLEND);
 
-	//glEnable(GL_LIGHTING);
-	//draw objects
+		//glEnable(GL_LIGHTING);
+		//draw objects
 
-	glEnable(GL_LIGHTING);
-	glPushMatrix();
-	m_mover.draw(0);
-	glPopMatrix();
-	glDisable(GL_LIGHTING);
+		glEnable(GL_LIGHTING);
+		glPushMatrix();
+		movers[i].draw(0, i + 1);
+		glPopMatrix();
+		glDisable(GL_LIGHTING);
+	}
 
 	glLineWidth(1.0f);
 	putText("7701564 Arthur Aillet", 10, 10, 1, 1, 0);
@@ -188,7 +190,7 @@ void MyGlWindow::draw()
 
 void MyGlWindow::test()
 {
-	m_mover = Mover();
+	movers = { Mover() };
 }
 
 void MyGlWindow::update()
@@ -200,8 +202,10 @@ void MyGlWindow::update()
 
 	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
 	if (duration <= 0.0f) return;
-	
-	m_mover.update(duration);
+
+	for (auto& mover : movers) {
+		mover.update(duration);
+	}
 }
 
 
@@ -231,15 +235,13 @@ void MyGlWindow::doPick()
 	glInitNames();
 	glPushName(0);
 
-	// draw the cubes, loading the names as we go
-	//for (size_t i = 0; i < world->points.size(); ++i) {
-	//	glLoadName((GLuint)(i + 1));
-	//	draw();
-	//}
-
+	for (int i = 0; i < movers.size(); i++) {
+		movers[i].draw(0, i + 1);
+	}
 
 	// go back to drawing mode, and see how picking did
 	int hits = glRenderMode(GL_RENDER);
+	std::cout << hits << std::endl;
 	if (hits) {
 		// warning; this just grabs the first object hit - if there
 		// are multiple objects, you really want to pick the closest
@@ -288,19 +290,18 @@ int m_lastMouseY;
 int MyGlWindow::handle(int e)
 //==========================================================================
 {
-
 	switch (e) {
 	case FL_SHOW:		// you must handle this, or not be seen!
 		show();
 		return 1;
 	case FL_PUSH:
 	{
-
 		m_pressedMouseButton = Fl::event_button();
 		m_lastMouseX = Fl::event_x();
 		m_lastMouseY = Fl::event_y();
 
 		if (m_pressedMouseButton == 1) {
+			std::cout << "pressed" << std::endl;
 			doPick();
 
 			if (selected >= 0) {
@@ -323,25 +324,22 @@ int MyGlWindow::handle(int e)
 	case FL_DRAG: // if the user drags the mouse
 	{
 
-
 		if (selected >= 0 && m_pressedMouseButton == 1) {
-
-						
 			double r1x, r1y, r1z, r2x, r2y, r2z;
 			getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 
 			double rx, ry, rz;
 				
-		/*	mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
-								
-				static_cast<double>(m_simulation->particles[selected]->m_position.x),
-				static_cast<double>(m_simulation->particles[selected]->m_position.y),
-				static_cast<double>(m_simulation->particles[selected]->m_position.z),
+			cyclone::Vector3 vec = movers[selected].particle.getPosition();
+			mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+				static_cast<double>(vec.x),
+				static_cast<double>(vec.y),
+				static_cast<double>(vec.z),
 				rx, ry, rz,
-				(Fl::event_state() & FL_CTRL) != 0);*/
+				(Fl::event_state() & FL_CTRL) != 0);
 
 			cyclone::Vector3 v(rx, ry, rz);
-			
+			movers[selected].particle.setPosition(rx, ry, rz);
 			damage(1);
 		}
 		else {
