@@ -105,6 +105,7 @@ int main()
 
 	test = new Fl_Light_Button(width - 600, height - 40, 100, 20, "Run");
 	test->callback(but_cb, gl);
+	gl->ui = test;
 
 	Fl_Button* step = new Fl_Button(width - 500, height - 40, 100, 20, "Step");
 	step->callback(but_cb_step, gl);

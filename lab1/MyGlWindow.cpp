@@ -317,6 +317,10 @@ int MyGlWindow::handle(int e)
 
 			if (selected >= 0) {
 				std::cout << "picked" << std::endl;
+				ui->value(0);
+				this->run = 0;
+				pickingStartTime = clock();
+				pickingStartPos = movers[selected].particle.getPosition();
 			}
 			damage(1);
 			return 1;
@@ -328,6 +332,14 @@ int MyGlWindow::handle(int e)
 	damage(1);
 	return 1;
 	case FL_RELEASE:
+		if (selected >= 0) {
+			ui->value(1);
+			this->run = 1;
+			cyclone::Vector3 pickingEndPos = movers[selected].particle.getPosition();
+			clock_t pickingEndTime = clock();
+
+			movers[selected].particle.setVelocity((pickingEndPos - pickingStartPos) / (pickingEndTime - pickingStartTime) * CLOCKS_PER_SEC / 2);
+		}
 		m_pressedMouseButton = -1;
 		damage(1);
 		

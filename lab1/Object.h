@@ -58,6 +58,18 @@ public:
 			pos.x = 100 - size;
 			vel.x = -vel.x;
 		}
+		if (pos.x <= -100 + size) {
+			pos.x = -100 + size;
+			vel.x = -vel.x;
+		}
+		if (pos.z + size >= 100) {
+			pos.z = 100 - size;
+			vel.z = -vel.z;
+		}
+		if (pos.z <= -100 + size) {
+			pos.z = -100 + size;
+			vel.z = -vel.z;
+		}
 		particle.setPosition(pos);
 		particle.setVelocity(vel);
 	}

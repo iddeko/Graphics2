@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "core.h"
+#include <FL/Fl_Light_Button.H>
 
 
 class MyGlWindow : public Fl_Gl_Window {
@@ -28,6 +29,7 @@ public:
 
 
 	Fl_Slider* time;
+	Fl_Light_Button* ui;
 	int run;
 	void update();
 	void drawStuff();
@@ -39,6 +41,9 @@ public:
 private:
 	void draw();					// standard FlTk
 
+	//3D position when mouse is pushing
+	cyclone::Vector3 pickingStartPos;
+	clock_t pickingStartTime;
 
 	int handle(int);				// standard FlTk
 
