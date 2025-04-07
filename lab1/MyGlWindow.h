@@ -32,6 +32,7 @@ public:
 	void update();
 	void drawStuff();
 	void doPick();
+	void step();
 	void test();
 	int selected;
 

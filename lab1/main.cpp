@@ -18,7 +18,7 @@
 
 
 Fl_Group* widgets;
-
+Fl_Light_Button* test;
 
 long lastRedraw;
 int frameRate = 60;
@@ -57,6 +57,15 @@ void but_cb(Fl_Widget* o, void*data)
 	win->damage(1);
 }
 
+void but_cb_step(Fl_Widget* o, void* data)
+{
+	Fl_Button* b = (Fl_Button*)o; //캐스팅이 반드시 필요
+	MyGlWindow* win = (MyGlWindow*)data;
+	win->run = 0;
+	test->value(0);
+	win->step();
+	win->damage(1);
+}
 
 void but_cb2(Fl_Widget* o, void*data)
 {
@@ -94,9 +103,11 @@ int main()
 
 
 
-	Fl_Light_Button * test = new Fl_Light_Button(width - 600, height - 40, 100, 20, "Run");
+	test = new Fl_Light_Button(width - 600, height - 40, 100, 20, "Run");
 	test->callback(but_cb, gl);
 
+	Fl_Button* step = new Fl_Button(width - 500, height - 40, 100, 20, "Step");
+	step->callback(but_cb_step, gl);
 
 
 	Fl_Button * test2 = new Fl_Button(width - 400, height - 40, 100, 20, "Test");

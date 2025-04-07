@@ -1,8 +1,6 @@
 #pragma once
 
-
 #define NOMINMAX
-
 
 #include <FL/Fl_Gl_Window.h>
 #include <Fl/Fl.h>

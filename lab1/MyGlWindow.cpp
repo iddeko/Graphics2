@@ -158,7 +158,6 @@ void MyGlWindow::draw()
 	glEnd();
 	*/
 
-	glDisable(GL_LIGHTING);
 	for (unsigned int i = 0; i < movers.size(); i++) {
 		glEnable(GL_BLEND);
 		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -206,6 +205,18 @@ void MyGlWindow::update()
 	for (auto& mover : movers) {
 		mover.update(duration);
 	}
+}
+
+void MyGlWindow::step()
+{
+	TimingData::get().update();
+
+	float duration = 0.03; // or 0.06
+		
+	for (auto& mover : movers) {
+		mover.update(duration);
+	}
+	std::cout << "step" << std::endl;
 }
 
 
@@ -338,7 +349,6 @@ int MyGlWindow::handle(int e)
 				rx, ry, rz,
 				(Fl::event_state() & FL_CTRL) != 0);
 
-			cyclone::Vector3 v(rx, ry, rz);
 			movers[selected].particle.setPosition(rx, ry, rz);
 			damage(1);
 		}
