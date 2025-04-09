@@ -21,6 +21,7 @@
 
 #include "core.h"
 #include <FL/Fl_Light_Button.H>
+#include <pfgen.h>
 
 
 class MyGlWindow : public Fl_Gl_Window {

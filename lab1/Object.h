@@ -14,6 +14,7 @@
 #include "stdio.h"
 #include "math.h"
 #include "cyclone.h"
+#include "pfgen.h"
 #include "3DUtils.h"
 
 #include "Viewer.h"
@@ -26,15 +27,25 @@
 class Mover {
 public:
 	cyclone::Particle particle;
+	cyclone::ParticleForceRegistry* forces;
+	cyclone::ParticleGravity* gravity;
+	cyclone::ParticleDrag* drag;
 
 	float size = 2;
 	Mover() {
+
 		particle.setPosition(0., 20., 0.);
 		
-		particle.setMass(2.0f); // 2.0kg
-		particle.setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
-		particle.setAcceleration(0.0f, -1.0f, 0.0f);
-		particle.setDamping(0.99f);
+		particle.setMass(1.0f);
+		particle.setVelocity(0.0f, 0.0f, 0.0f); // 35m/s
+		particle.setAcceleration(0.0f, 0.0f, 0.0f);
+		particle.setDamping(1.f);
+
+		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
+		drag = new cyclone::ParticleDrag(0.1, 0.01);
+		forces = new cyclone::ParticleForceRegistry();
+		forces->add(&particle, gravity);
+		forces->add(&particle, drag);
 
 		//particle.setVelocity(0., 0., 0.);
 		//particle.setMass(1.);
@@ -46,8 +57,12 @@ public:
 	void stop(){}
 	void update(float duration) {
 		//particle.addForce(cyclone::Vector3(1., 0., 0.));
+		forces->updateForces(duration);
 		particle.integrate(duration);
+	//	checkEdges();
+	}
 
+	void checkEdges() {
 		cyclone::Vector3 pos = particle.getPosition();
 		cyclone::Vector3 vel = particle.getVelocity();
 		if (pos.y <= 0 + size) {
