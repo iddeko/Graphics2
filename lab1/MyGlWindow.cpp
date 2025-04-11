@@ -320,7 +320,7 @@ int MyGlWindow::handle(int e)
 				ui->value(0);
 				this->run = 0;
 				pickingStartTime = clock();
-				pickingStartPos = movers[selected].particle.getPosition();
+				pickingStartPos = movers[selected].particle->getPosition();
 			}
 			damage(1);
 			return 1;
@@ -335,10 +335,10 @@ int MyGlWindow::handle(int e)
 		if (selected >= 0) {
 			ui->value(1);
 			this->run = 1;
-			cyclone::Vector3 pickingEndPos = movers[selected].particle.getPosition();
+			cyclone::Vector3 pickingEndPos = movers[selected].particle->getPosition();
 			clock_t pickingEndTime = clock();
 
-			movers[selected].particle.setVelocity((pickingEndPos - pickingStartPos) / (pickingEndTime - pickingStartTime) * CLOCKS_PER_SEC / 2);
+			movers[selected].particle->setVelocity((pickingEndPos - pickingStartPos) / (pickingEndTime - pickingStartTime) * CLOCKS_PER_SEC / 2);
 		}
 		m_pressedMouseButton = -1;
 		damage(1);
@@ -353,7 +353,7 @@ int MyGlWindow::handle(int e)
 
 			double rx, ry, rz;
 				
-			cyclone::Vector3 vec = movers[selected].particle.getPosition();
+			cyclone::Vector3 vec = movers[selected].particle->getPosition();
 			mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
 				static_cast<double>(vec.x),
 				static_cast<double>(vec.y),
@@ -361,7 +361,7 @@ int MyGlWindow::handle(int e)
 				rx, ry, rz,
 				(Fl::event_state() & FL_CTRL) != 0);
 
-			movers[selected].particle.setPosition(rx, ry, rz);
+			movers[selected].particle->setPosition(rx, ry, rz);
 			damage(1);
 		}
 		else {

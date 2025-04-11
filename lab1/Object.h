@@ -26,45 +26,45 @@
 
 class Mover {
 public:
-	cyclone::Particle particle;
-	cyclone::ParticleForceRegistry* forces;
-	cyclone::ParticleGravity* gravity;
-	cyclone::ParticleDrag* drag;
+	cyclone::Particle *particle;
+	cyclone::ParticleForceRegistry *forces;
+	cyclone::ParticleGravity *gravity;
+	cyclone::ParticleDrag *drag;
 
 	float size = 2;
 	Mover() {
-
-		particle.setPosition(0., 20., 0.);
+		particle = new cyclone::Particle();
+		particle->setPosition(0., 20., 0.);
 		
-		particle.setMass(1.0f);
-		particle.setVelocity(0.0f, 0.0f, 0.0f); // 35m/s
-		particle.setAcceleration(0.0f, 0.0f, 0.0f);
-		particle.setDamping(1.f);
+		particle->setMass(1.0f);
+		particle->setVelocity(0.0f, 0.0f, 0.0f); // 35m/s
+		particle->setAcceleration(0.0f, 0.0f, 0.0f);
+		particle->setDamping(1.f);
 
 		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
 		drag = new cyclone::ParticleDrag(0.1, 0.01);
 		forces = new cyclone::ParticleForceRegistry();
-		forces->add(&particle, gravity);
-		forces->add(&particle, drag);
+		forces->add(particle, gravity);
+		forces->add(particle, drag);
 
-		//particle.setVelocity(0., 0., 0.);
-		//particle.setMass(1.);
-		//particle.setDamping(0.99);
-		//particle.setAcceleration(cyclone::Vector3::GRAVITY);
+		//particle->setVelocity(0., 0., 0.);
+		//particle->setMass(1.);
+		//particle->setDamping(0.99);
+		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
 	~Mover() {};
 	
 	void stop(){}
 	void update(float duration) {
-		//particle.addForce(cyclone::Vector3(1., 0., 0.));
+		//particle->addForce(cyclone::Vector3(1., 0., 0.));
 		forces->updateForces(duration);
-		particle.integrate(duration);
-	//	checkEdges();
+		particle->integrate(duration);
+	 	checkEdges();
 	}
 
 	void checkEdges() {
-		cyclone::Vector3 pos = particle.getPosition();
-		cyclone::Vector3 vel = particle.getVelocity();
+		cyclone::Vector3 pos = particle->getPosition();
+		cyclone::Vector3 vel = particle->getVelocity();
 		if (pos.y <= 0 + size) {
 			pos.y = size;
 			vel.y = -vel.y;
@@ -85,12 +85,12 @@ public:
 			pos.z = -100 + size;
 			vel.z = -vel.z;
 		}
-		particle.setPosition(pos);
-		particle.setVelocity(vel);
+		particle->setPosition(pos);
+		particle->setVelocity(vel);
 	}
 
 	void draw(int shadow, int name) {
-		cyclone::Vector3 position = particle.getPosition();
+		cyclone::Vector3 position = particle->getPosition();
 
 		if (shadow == 1) {
 			glLoadName(0);
