@@ -16,6 +16,7 @@
 #include "cyclone.h"
 #include "pfgen.h"
 #include "3DUtils.h"
+#include "Spring.h"
 
 #include "Viewer.h"
 #include <vector>
@@ -30,6 +31,7 @@ public:
 	cyclone::ParticleForceRegistry *forces;
 	cyclone::ParticleGravity *gravity;
 	cyclone::ParticleDrag *drag;
+	cyclone::MySpring* spring = NULL;
 
 	float size = 2;
 	Mover() {
@@ -54,6 +56,11 @@ public:
 	};
 	~Mover() {};
 	
+	void setConnection(Mover &a) {
+		this->spring = new cyclone::MySpring(a.particle, (double)2, (double)3);
+		forces->add(this->particle, this->spring);
+	}
+
 	void stop(){}
 	void update(float duration) {
 		//particle->addForce(cyclone::Vector3(1., 0., 0.));

@@ -34,7 +34,7 @@ file(GLOB_RECURSE SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/*.h"  
 )
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/"  "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/" "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

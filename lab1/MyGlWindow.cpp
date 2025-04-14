@@ -29,7 +29,10 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { Mover() };
+	movers = { Mover(), Mover() };
+
+	movers[0].setConnection(movers[1]);
+	movers[1].setConnection(movers[0]);
 
 	TimingData::init();
 	run = 0;
@@ -202,8 +205,10 @@ void MyGlWindow::update()
 	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
 	if (duration <= 0.0f) return;
 
-	for (auto& mover : movers) {
-		mover.update(duration);
+	for (int i = 0; i != movers.size(); i++) {
+		if (i != this->selected) {
+			movers[i].update(duration);
+		}
 	}
 }
 
@@ -318,7 +323,7 @@ int MyGlWindow::handle(int e)
 			if (selected >= 0) {
 				std::cout << "picked" << std::endl;
 				ui->value(0);
-				this->run = 0;
+				this->run = 1;
 				pickingStartTime = clock();
 				pickingStartPos = movers[selected].particle->getPosition();
 			}
@@ -339,6 +344,7 @@ int MyGlWindow::handle(int e)
 			clock_t pickingEndTime = clock();
 
 			movers[selected].particle->setVelocity((pickingEndPos - pickingStartPos) / (pickingEndTime - pickingStartTime) * CLOCKS_PER_SEC / 2);
+			selected = -1;
 		}
 		m_pressedMouseButton = -1;
 		damage(1);

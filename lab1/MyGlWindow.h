@@ -15,6 +15,7 @@
 #include "math.h"
 #include "3DUtils.h"
 #include "Object.h"
+#include "Spring.h"
 
 #include "Viewer.h"
 #include <vector>
