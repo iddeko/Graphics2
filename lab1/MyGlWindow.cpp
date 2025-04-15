@@ -29,10 +29,15 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { Mover(), Mover() };
+	movers = { Mover(), Mover(), Mover(), Mover() };
 
-	movers[0].setConnection(movers[1]);
-	movers[1].setConnection(movers[0]);
+	//movers[0].setConnection(movers[1]);
+	//movers[1].setConnection(movers[2]);
+	//movers[2].setConnection(movers[3]);
+
+	//movers[1].setConnection(movers[0]);
+	//movers[2].setConnection(movers[1]);
+	//movers[3].setConnection(movers[2]);
 
 	TimingData::init();
 	run = 0;
@@ -161,8 +166,8 @@ void MyGlWindow::draw()
 	glEnd();
 	*/
 
+	glEnable(GL_BLEND);
 	for (unsigned int i = 0; i < movers.size(); i++) {
-		glEnable(GL_BLEND);
 		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 		//draw shadow
@@ -170,17 +175,16 @@ void MyGlWindow::draw()
 		movers[i].draw(1, i + 1);
 		unsetupShadows();
 
-		glDisable(GL_BLEND);
-
-		//glEnable(GL_LIGHTING);
-		//draw objects
-
-		glEnable(GL_LIGHTING);
+	}
+	glDisable(GL_BLEND);
+	//draw objects
+	glEnable(GL_LIGHTING);
+	for (unsigned int i = 0; i < movers.size(); i++) {
 		glPushMatrix();
 		movers[i].draw(0, i + 1);
 		glPopMatrix();
-		glDisable(GL_LIGHTING);
 	}
+	glDisable(GL_LIGHTING);
 
 	glLineWidth(1.0f);
 	putText("7701564 Arthur Aillet", 10, 10, 1, 1, 0);
@@ -249,10 +253,13 @@ void MyGlWindow::doPick()
 	glSelectBuffer(100, buf);
 	glRenderMode(GL_SELECT);
 	glInitNames();
-	glPushName(0);
 
 	for (int i = 0; i < movers.size(); i++) {
+		glPushName(i + 1);
+		//glLoadName(name);
 		movers[i].draw(0, i + 1);
+		glPopName();
+		std::cout << "test: " << i << std::endl;
 	}
 
 	// go back to drawing mode, and see how picking did

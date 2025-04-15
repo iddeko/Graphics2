@@ -44,7 +44,8 @@ public:
 		particle->setDamping(1.f);
 
 		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
-		drag = new cyclone::ParticleDrag(0.1, 0.01);
+		//drag = new cyclone::ParticleDrag(0.1, 0.01);
+		drag = new cyclone::ParticleDrag(0.3, 0.1);
 		forces = new cyclone::ParticleForceRegistry();
 		forces->add(particle, gravity);
 		forces->add(particle, drag);
@@ -57,7 +58,7 @@ public:
 	~Mover() {};
 	
 	void setConnection(Mover &a) {
-		this->spring = new cyclone::MySpring(a.particle, (double)2, (double)3);
+		this->spring = new cyclone::MySpring(a.particle, (double)20, (double)3);
 		forces->add(this->particle, this->spring);
 	}
 
@@ -100,14 +101,13 @@ public:
 		cyclone::Vector3 position = particle->getPosition();
 
 		if (shadow == 1) {
-			glLoadName(0);
 			glColor3f(0.1f, 0.1f, 0.1f);
 		} else {
-			glLoadName(name);
 			glColor3f(1.f, 0.1f, 0.1f);
 		}
+		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(size, 30, 30);
-		glLoadName(0);
+		glPopMatrix();
 	}
 };
