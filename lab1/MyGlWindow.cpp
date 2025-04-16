@@ -31,13 +31,13 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
 	movers = { Mover(), Mover(), Mover(), Mover() };
 
-	//movers[0].setConnection(movers[1]);
-	//movers[1].setConnection(movers[2]);
-	//movers[2].setConnection(movers[3]);
+	movers[0].setConnection(movers[1]);
+	movers[1].setConnection(movers[2]);
+	movers[2].setConnection(movers[3]);
 
-	//movers[1].setConnection(movers[0]);
-	//movers[2].setConnection(movers[1]);
-	//movers[3].setConnection(movers[2]);
+	movers[1].setConnection(movers[0]);
+	movers[2].setConnection(movers[1]);
+	movers[3].setConnection(movers[2]);
 
 	TimingData::init();
 	run = 0;
@@ -177,12 +177,18 @@ void MyGlWindow::draw()
 
 	}
 	glDisable(GL_BLEND);
+
+	glBegin(GL_LINE_STRIP);
+	for (unsigned int i = 0; i < movers.size(); i++) {
+		cyclone::Vector3 p = movers[i].particle->getPosition();
+		glVertex3f(p.x, p.y, p.z);
+	}
+	glEnd();
+
 	//draw objects
 	glEnable(GL_LIGHTING);
 	for (unsigned int i = 0; i < movers.size(); i++) {
-		glPushMatrix();
 		movers[i].draw(0, i + 1);
-		glPopMatrix();
 	}
 	glDisable(GL_LIGHTING);
 
@@ -259,7 +265,6 @@ void MyGlWindow::doPick()
 		//glLoadName(name);
 		movers[i].draw(0, i + 1);
 		glPopName();
-		std::cout << "test: " << i << std::endl;
 	}
 
 	// go back to drawing mode, and see how picking did

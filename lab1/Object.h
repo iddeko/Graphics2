@@ -44,14 +44,14 @@ public:
 		particle->setDamping(1.f);
 
 		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
-		//drag = new cyclone::ParticleDrag(0.1, 0.01);
-		drag = new cyclone::ParticleDrag(0.3, 0.1);
+		drag = new cyclone::ParticleDrag(0.1, 0.01);
+		//drag = new cyclone::ParticleDrag(0.15, 0.02);
 		forces = new cyclone::ParticleForceRegistry();
 		forces->add(particle, gravity);
 		forces->add(particle, drag);
 
 		//particle->setVelocity(0., 0., 0.);
-		//particle->setMass(1.);
+		particle->setMass(1.);
 		//particle->setDamping(0.99);
 		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
