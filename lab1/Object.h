@@ -22,6 +22,7 @@
 #include <vector>
 
 #include <iostream>
+#include "Plane.h"
 
 #include "core.h"
 
@@ -32,27 +33,26 @@ public:
 	cyclone::ParticleGravity *gravity;
 	cyclone::ParticleDrag *drag;
 	cyclone::MySpring* spring = NULL;
+	cyclone::MyAnchoredSpring* anchor_spring = NULL;
 
 	float size = 2;
 	Mover() {
 		particle = new cyclone::Particle();
-		particle->setPosition(0., 20., 0.);
+		particle->setPosition(3., 19., 0.);
 		
 		particle->setMass(1.0f);
 		particle->setVelocity(0.0f, 0.0f, 0.0f); // 35m/s
 		particle->setAcceleration(0.0f, 0.0f, 0.0f);
-		particle->setDamping(1.f);
 
 		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
 		drag = new cyclone::ParticleDrag(0.1, 0.01);
-		//drag = new cyclone::ParticleDrag(0.15, 0.02);
 		forces = new cyclone::ParticleForceRegistry();
 		forces->add(particle, gravity);
 		forces->add(particle, drag);
 
 		//particle->setVelocity(0., 0., 0.);
 		particle->setMass(1.);
-		//particle->setDamping(0.99);
+		particle->setDamping(1.);
 		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
 	~Mover() {};
@@ -62,12 +62,27 @@ public:
 		forces->add(this->particle, this->spring);
 	}
 
+	void setAnchorConnection(cyclone::Vector3* anchor, double springConstant, double restLength) {
+		this->anchor_spring = new cyclone::MyAnchoredSpring(anchor, springConstant, restLength);
+		forces->add(this->particle, this->anchor_spring);
+	}
+
 	void stop(){}
-	void update(float duration) {
+	void update(float duration, Plane &plane) {
 		//particle->addForce(cyclone::Vector3(1., 0., 0.));
 		forces->updateForces(duration);
 		particle->integrate(duration);
 	 	checkEdges();
+
+		double distance = plane.getDistance(particle->getPosition(), size);
+		if (abs(distance) < size && plane.inBounds(particle->getPosition())) {
+			auto normal = plane.getNormal();
+			if (distance < 0) {
+				normal *= -1;
+			}
+			particle->setPosition(particle->getPosition() + (size - abs(distance)) * normal);
+			particle->setVelocity(particle->getVelocity() - (2 * particle->getVelocity().dot(normal) * normal));
+		}
 	}
 
 	void checkEdges() {

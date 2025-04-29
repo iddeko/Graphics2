@@ -23,6 +23,7 @@
 #include "core.h"
 #include <FL/Fl_Light_Button.H>
 #include <pfgen.h>
+#include <Plane.h>
 
 
 class MyGlWindow : public Fl_Gl_Window {
@@ -47,6 +48,8 @@ private:
 	cyclone::Vector3 pickingStartPos;
 	clock_t pickingStartTime;
 
+	cyclone::Vector3 anchorPos;
+	Plane plane;
 	int handle(int);				// standard FlTk
 
 	float fieldOfView;

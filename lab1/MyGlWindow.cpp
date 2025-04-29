@@ -29,15 +29,19 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { Mover(), Mover(), Mover(), Mover() };
+	//	movers = { Mover(), Mover(), Mover(), Mover() };
 
-	movers[0].setConnection(movers[1]);
-	movers[1].setConnection(movers[2]);
-	movers[2].setConnection(movers[3]);
+//	movers[0].setConnection(movers[1]);
+//	movers[1].setConnection(movers[2]);
+//	movers[2].setConnection(movers[3]);
 
-	movers[1].setConnection(movers[0]);
-	movers[2].setConnection(movers[1]);
-	movers[3].setConnection(movers[2]);
+//	movers[1].setConnection(movers[0]);
+//	movers[2].setConnection(movers[1]);
+//	movers[3].setConnection(movers[2]);
+	//this->anchorPos = { 7, 15, 8 };
+	movers = { Mover() };
+	plane = Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
+	//movers[0].setAnchorConnection(&this->anchorPos, 2, 4);
 
 	TimingData::init();
 	run = 0;
@@ -98,13 +102,6 @@ void setupObjects(void)
 	glStencilFunc(GL_ALWAYS, 0x0, 0x0);
 	glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 	glStencilMask(0x1);		// only deal with the 1st bit
-}
-
-
-void MyGlWindow::drawStuff()
-{
-	glColor4f(1, 1, 0, 0.5);
-	polygonf(4, 20., 0., -25., 20., 0., 25., -20., 30., 25., -20., 30., -25.);
 }
 
 //==========================================================================
@@ -178,19 +175,44 @@ void MyGlWindow::draw()
 	}
 	glDisable(GL_BLEND);
 
-	glBegin(GL_LINE_STRIP);
-	for (unsigned int i = 0; i < movers.size(); i++) {
-		cyclone::Vector3 p = movers[i].particle->getPosition();
-		glVertex3f(p.x, p.y, p.z);
-	}
-	glEnd();
+	//glBegin(GL_LINE_STRIP);
+	//for (unsigned int i = 0; i < movers.size(); i++) {
+	//	cyclone::Vector3 p = movers[i].particle->getPosition();
+	//	glVertex3f(p.x, p.y, p.z);
+	//}
+	//glEnd();
 
+	auto &pos = this->movers[0].particle->getPosition();
+
+
+	/*
+	glColor3f(0, 0, 0); //Line color
+	glLineWidth(3.0f); //Line Width
+	glPushMatrix();
+	glBegin(GL_LINES);
+	glVertex3f(pos.x, pos.y, pos.z); //Starting point
+	glVertex3f(this->anchorPos.x, this->anchorPos.y, this->anchorPos.z); //Ending point
+	glEnd();
+	glPopMatrix();
+
+	glColor3f(0, 100, 0); //Line color
+	glLineWidth(3.0f); //Line Width
+	glPushMatrix();
+	glBegin(GL_LINES);
+	glVertex3f(this->anchorPos.x, 0, this->anchorPos.z); //Starting point
+	glVertex3f(this->anchorPos.x, this->anchorPos.y, this->anchorPos.z); //Ending point
+	glEnd();
+	glPopMatrix();
+	*/
+	
 	//draw objects
 	glEnable(GL_LIGHTING);
 	for (unsigned int i = 0; i < movers.size(); i++) {
 		movers[i].draw(0, i + 1);
 	}
 	glDisable(GL_LIGHTING);
+
+	plane.draw();
 
 	glLineWidth(1.0f);
 	putText("7701564 Arthur Aillet", 10, 10, 1, 1, 0);
@@ -217,7 +239,7 @@ void MyGlWindow::update()
 
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
-			movers[i].update(duration);
+			movers[i].update(duration, this->plane);
 		}
 	}
 }
@@ -229,7 +251,7 @@ void MyGlWindow::step()
 	float duration = 0.03; // or 0.06
 		
 	for (auto& mover : movers) {
-		mover.update(duration);
+		mover.update(duration, this->plane);
 	}
 	std::cout << "step" << std::endl;
 }
