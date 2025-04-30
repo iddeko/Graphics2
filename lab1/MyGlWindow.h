@@ -49,7 +49,7 @@ private:
 	clock_t pickingStartTime;
 
 	cyclone::Vector3 anchorPos;
-	Plane plane;
+	std::optional<Plane> plane;
 	int handle(int);				// standard FlTk
 
 	float fieldOfView;

@@ -25,6 +25,7 @@
 #include "Plane.h"
 
 #include "core.h"
+#include <optional>
 
 class Mover {
 public:
@@ -68,20 +69,22 @@ public:
 	}
 
 	void stop(){}
-	void update(float duration, Plane &plane) {
+	void update(float duration, Plane *plane) {
 		//particle->addForce(cyclone::Vector3(1., 0., 0.));
 		forces->updateForces(duration);
 		particle->integrate(duration);
 	 	checkEdges();
 
-		double distance = plane.getDistance(particle->getPosition(), size);
-		if (abs(distance) < size && plane.inBounds(particle->getPosition())) {
-			auto normal = plane.getNormal();
-			if (distance < 0) {
-				normal *= -1;
+		if (plane != NULL) {
+			double distance = plane->getDistance(particle->getPosition(), size);
+			if (abs(distance) < size && plane->inBounds(particle->getPosition())) {
+				auto normal = plane->getNormal();
+				if (distance < 0) {
+					normal *= -1;
+				}
+				particle->setPosition(particle->getPosition() + (size - abs(distance)) * normal);
+				particle->setVelocity(particle->getVelocity() - (2 * particle->getVelocity().dot(normal) * normal));
 			}
-			particle->setPosition(particle->getPosition() + (size - abs(distance)) * normal);
-			particle->setVelocity(particle->getVelocity() - (2 * particle->getVelocity().dot(normal) * normal));
 		}
 	}
 

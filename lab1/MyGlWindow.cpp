@@ -40,7 +40,7 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 //	movers[3].setConnection(movers[2]);
 	//this->anchorPos = { 7, 15, 8 };
 	movers = { Mover() };
-	plane = Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
+	plane = std::nullopt; //Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
 	//movers[0].setAnchorConnection(&this->anchorPos, 2, 4);
 
 	TimingData::init();
@@ -212,7 +212,9 @@ void MyGlWindow::draw()
 	}
 	glDisable(GL_LIGHTING);
 
-	plane.draw();
+	if (plane.has_value()) {
+		plane->draw();
+	}
 
 	glLineWidth(1.0f);
 	putText("7701564 Arthur Aillet", 10, 10, 1, 1, 0);
@@ -239,7 +241,11 @@ void MyGlWindow::update()
 
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
-			movers[i].update(duration, this->plane);
+			if (plane.has_value()) {
+				movers[i].update(duration, &plane.value());
+			} else {
+				movers[i].update(duration, NULL);
+			}
 		}
 	}
 }
@@ -251,7 +257,12 @@ void MyGlWindow::step()
 	float duration = 0.03; // or 0.06
 		
 	for (auto& mover : movers) {
-		mover.update(duration, this->plane);
+		if (plane.has_value()) {
+			mover.update(duration, &plane.value());
+		}
+		else {
+			mover.update(duration, NULL);
+		}
 	}
 	std::cout << "step" << std::endl;
 }
