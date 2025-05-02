@@ -41,8 +41,8 @@ public:
 		particle = new cyclone::Particle();
 		particle->setPosition(3., 19., 0.);
 		
-		particle->setMass(1.0f);
-		particle->setVelocity(0.0f, 0.0f, 0.0f); // 35m/s
+		particle->setMass(1.);
+		particle->setVelocity(0.0f, 0.0f, 0.0f);
 		particle->setAcceleration(0.0f, 0.0f, 0.0f);
 
 		gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
@@ -52,7 +52,6 @@ public:
 		forces->add(particle, drag);
 
 		//particle->setVelocity(0., 0., 0.);
-		particle->setMass(1.);
 		particle->setDamping(1.);
 		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
@@ -68,7 +67,8 @@ public:
 		forces->add(this->particle, this->anchor_spring);
 	}
 
-	void stop(){}
+	void stop() {}
+
 	void update(float duration, Plane *plane) {
 		//particle->addForce(cyclone::Vector3(1., 0., 0.));
 		forces->updateForces(duration);

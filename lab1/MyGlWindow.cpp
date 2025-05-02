@@ -29,7 +29,7 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	//	movers = { Mover(), Mover(), Mover(), Mover() };
+	movers = { };
 
 //	movers[0].setConnection(movers[1]);
 //	movers[1].setConnection(movers[2]);
@@ -39,8 +39,8 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 //	movers[2].setConnection(movers[1]);
 //	movers[3].setConnection(movers[2]);
 	//this->anchorPos = { 7, 15, 8 };
-	movers = { Mover() };
 	plane = std::nullopt; //Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
+	fireworks.push_back(Firework());
 	//movers[0].setAnchorConnection(&this->anchorPos, 2, 4);
 
 	TimingData::init();
@@ -173,6 +173,13 @@ void MyGlWindow::draw()
 		unsetupShadows();
 
 	}
+
+	for (auto& firework : this->fireworks) {
+		setupShadows();
+		firework.draw(true);
+		unsetupShadows();
+	}
+
 	glDisable(GL_BLEND);
 
 	//glBegin(GL_LINE_STRIP);
@@ -182,10 +189,12 @@ void MyGlWindow::draw()
 	//}
 	//glEnd();
 
-	auto &pos = this->movers[0].particle->getPosition();
 
 
 	/*
+	auto &pos = this->movers[0].particle->getPosition();
+
+
 	glColor3f(0, 0, 0); //Line color
 	glLineWidth(3.0f); //Line Width
 	glPushMatrix();
@@ -212,6 +221,11 @@ void MyGlWindow::draw()
 	}
 	glDisable(GL_LIGHTING);
 
+	for (auto& firework : this->fireworks) {
+		firework.draw(false);
+	}
+	
+	
 	if (plane.has_value()) {
 		plane->draw();
 	}
@@ -226,7 +240,8 @@ void MyGlWindow::draw()
 
 void MyGlWindow::test()
 {
-	movers = { Mover() };
+	//movers = { Mover() };
+	fireworks.push_back(Firework());
 }
 
 void MyGlWindow::update()
@@ -238,6 +253,10 @@ void MyGlWindow::update()
 
 	float duration = (float)TimingData::get().lastFrameDuration * 0.003;
 	if (duration <= 0.0f) return;
+
+	for (auto& firework : this->fireworks) {
+		firework.update(duration);
+	}
 
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
@@ -254,8 +273,12 @@ void MyGlWindow::step()
 {
 	TimingData::get().update();
 
-	float duration = 0.03; // or 0.06
+	float duration = 0.06;
 		
+	for (auto& firework : this->fireworks) {
+		firework.update(duration);
+	}
+
 	for (auto& mover : movers) {
 		if (plane.has_value()) {
 			mover.update(duration, &plane.value());

@@ -25,6 +25,8 @@
 #include <pfgen.h>
 #include <Plane.h>
 
+#include "Firework.h"
+
 
 class MyGlWindow : public Fl_Gl_Window {
 public:
@@ -35,7 +37,6 @@ public:
 	Fl_Light_Button* ui;
 	int run;
 	void update();
-	void drawStuff();
 	void doPick();
 	void step();
 	void test();
@@ -50,6 +51,8 @@ private:
 
 	cyclone::Vector3 anchorPos;
 	std::optional<Plane> plane;
+	std::vector<Firework> fireworks;
+	
 	int handle(int);				// standard FlTk
 
 	float fieldOfView;
@@ -61,4 +64,3 @@ private:
 	void setupLight(float x, float y, float z);
 	void putText(char* string, int x, int y, float r, float g, float b);
 };
-

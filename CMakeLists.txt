@@ -30,11 +30,12 @@ find_package(glm CONFIG REQUIRED)
 
 file(GLOB_RECURSE SOURCES
   "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}/*.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}/Firework/*.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/*.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/*.h"  
 )
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/" "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/Cyclone/" "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}" "${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT}/Firework")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
