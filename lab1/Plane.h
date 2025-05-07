@@ -2,6 +2,14 @@
 
 #include "cyclone.h"
 #include <DrawUtils.H>
+#include <FL/Fl_Gl_Window.h>
+#include <Fl/Fl.h>
+#include <Fl/Fl_Value_Slider.H>
+#include <windows.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+#include <Fl/Fl_Double_Window.h>
 
 
 class Plane {

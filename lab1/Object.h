@@ -75,26 +75,15 @@ public:
 		particle->integrate(duration);
 	 	checkEdges();
 
-		if (plane != NULL) {
-			double distance = plane->getDistance(particle->getPosition(), size);
-			if (abs(distance) < size && plane->inBounds(particle->getPosition())) {
-				auto normal = plane->getNormal();
-				if (distance < 0) {
-					normal *= -1;
-				}
-				particle->setPosition(particle->getPosition() + (size - abs(distance)) * normal);
-				particle->setVelocity(particle->getVelocity() - (2 * particle->getVelocity().dot(normal) * normal));
-			}
-		}
 	}
 
 	void checkEdges() {
 		cyclone::Vector3 pos = particle->getPosition();
 		cyclone::Vector3 vel = particle->getVelocity();
-		if (pos.y <= 0 + size) {
-			pos.y = size;
-			vel.y = -vel.y;
-		}
+		//if (pos.y <= 0 + size) {
+		//	pos.y = size;
+		//	vel.y = -vel.y;
+		//}
 		if (pos.x + size >= 100) {
 			pos.x = 100 - size;
 			vel.x = -vel.x;

@@ -7,7 +7,7 @@
 
 
 #include "timing.h"
-
+#include "MyContact.h"
 
 static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
@@ -29,7 +29,15 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { };
+	movers = { Mover() };
+	fireworks = { };
+
+	cyclone::MyGroundContact* c = new cyclone::MyGroundContact();
+	for (Mover &m : movers) {
+		c->init(m.particle, 2.0);
+	}
+	m_contactGenerators.push_back(c);
+	m_resolver = new cyclone::ParticleContactResolver(4);
 
 //	movers[0].setConnection(movers[1]);
 //	movers[1].setConnection(movers[2]);
@@ -39,8 +47,14 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 //	movers[2].setConnection(movers[1]);
 //	movers[3].setConnection(movers[2]);
 	//this->anchorPos = { 7, 15, 8 };
-	plane = std::nullopt; //Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
-	fireworks.push_back(Firework());
+	plane = Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
+	cyclone::MyPlaneContact* p = new cyclone::MyPlaneContact(&plane.value());
+	for (Mover& m : movers) {
+		p->init(m.particle, 2.0);
+	}
+	m_contactGenerators.push_back(p);
+
+	//fireworks.push_back(Firework());
 	//movers[0].setAnchorConnection(&this->anchorPos, 2, 4);
 
 	TimingData::init();
@@ -53,14 +67,14 @@ void MyGlWindow::setupLight(float x, float y, float z)
 {
 
 	// set up the lighting
-	GLfloat lightPosition[] = { 500, 900.0, 500, 1.0 };
-	GLfloat lightPosition2[] = { 1, 0, 0, 0 };
-	GLfloat lightPosition3[] = { 0, -1, 0, 0 };
+	GLfloat lightPosition[] = { 500., 900., 500., 1. };
+	GLfloat lightPosition2[] = { 1., 0., 0., 0. };
+	GLfloat lightPosition3[] = { 0., -1., 0., 0. };
 
-	GLfloat violetLight[] = { 0.5f, 0.1f, .5f, 1.0 };
-	GLfloat whiteLight[] = { 1, 1, 1, 1.0 };
-	GLfloat whiteLight2[] = { .3, .3, .3, 1.0 };
-	GLfloat blueLight[] = { .1f,.1f,.3f,1.0 };
+	GLfloat violetLight[] = { .5f, .1f, .5f, 1. };
+	GLfloat whiteLight[] = { 1., 1., 1., 1. };
+	GLfloat whiteLight2[] = { .3, .3, .3, 1. };
+	GLfloat blueLight[] = { .1f, .1f, .3f, 1. };
 
 
 	glEnable(GL_COLOR_MATERIAL);
@@ -266,6 +280,23 @@ void MyGlWindow::update()
 				movers[i].update(duration, NULL);
 			}
 		}
+	}
+
+	unsigned maxPossibleContact = 2;
+	unsigned limit = maxPossibleContact; //1 : why? we have only 1 floor and 1 particle
+	cyclone::ParticleContact* nextContact = m_contact; //cyclone::ParticleContact starting pointer
+	for (auto g = m_contactGenerators.begin(); g != m_contactGenerators.end(); g++) {
+		unsigned used = (*g)->addContact(nextContact, limit); //# of solved collision is saved in used
+		limit -= used; //subtract limit by used
+		nextContact += used; //move the pointer
+		if (limit <= 0) {
+			break; //if nothing left, then return
+		}
+	}
+	int num = maxPossibleContact - limit;
+	if (num > 0) {
+		m_resolver->setIterations(num * 2);
+		m_resolver->resolveContacts(m_contact, num, duration);
 	}
 }
 

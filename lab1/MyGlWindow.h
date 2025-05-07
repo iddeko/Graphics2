@@ -26,6 +26,7 @@
 #include <Plane.h>
 
 #include "Firework.h"
+#include "MyContact.h"
 
 
 class MyGlWindow : public Fl_Gl_Window {
@@ -52,6 +53,12 @@ private:
 	cyclone::Vector3 anchorPos;
 	std::optional<Plane> plane;
 	std::vector<Firework> fireworks;
+
+	cyclone::ParticleContact m_contact[2]; //maximum #of collisions possible = 2
+	//Container for many different kinds of contacts
+	std::vector<cyclone::ParticleContactGenerator*> m_contactGenerators;
+	//Collision resolver(calculate impulse and change velocity and positions)
+	cyclone::ParticleContactResolver* m_resolver;
 	
 	int handle(int);				// standard FlTk
 

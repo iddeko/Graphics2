@@ -123,9 +123,7 @@ void ParticleContact::resolveInterpenetration(real duration)
     }
 }
 
-ParticleContactResolver::ParticleContactResolver(unsigned iterations)
-:
-iterations(iterations)
+ParticleContactResolver::ParticleContactResolver(unsigned iterations) : iterations(iterations), iterationsUsed(0)
 {
 }
 

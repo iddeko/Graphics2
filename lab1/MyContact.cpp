@@ -1,0 +1,70 @@
+#include "MyContact.h"
+#include <vector>
+#include <Plane.h>
+
+using namespace cyclone;
+
+void cyclone::MyGroundContact::init(cyclone::Particle* p, double size) {
+	if (p) {
+		particles.push_back(p);
+	}
+	this->size = size;
+}
+
+unsigned cyclone::MyGroundContact::addContact(cyclone::ParticleContact* contact, unsigned limit) const {
+	unsigned count = 0;
+	for (int i = 0; i < particles.size(); i++) {
+		cyclone::Particle* p = particles[i];
+		cyclone::real y = p->getPosition().y;
+		cyclone::real size = this->size;
+		
+		if (y - size < 0) {
+			contact->contactNormal = { 0., 1., 0.};
+			contact->particle[0] = p;
+			contact->particle[1] = NULL;
+			contact->penetration = size - y;
+			contact->restitution = 1.0;
+			count++;
+		}
+		if (count >= limit) return count;
+	}
+	return count;
+}
+
+cyclone::MyPlaneContact::MyPlaneContact(Plane *p) {
+	this->plane = p;
+}
+
+void cyclone::MyPlaneContact::init(cyclone::Particle* p, double size) {
+	if (p) {
+		particles.push_back(p);
+	}
+	this->size = size;
+}
+
+unsigned cyclone::MyPlaneContact::addContact(cyclone::ParticleContact* contact, unsigned limit) const {
+	if (plane == NULL) {
+		return 0;
+	}
+	unsigned count = 0;
+
+	for (int i = 0; i < particles.size(); i++) {
+		cyclone::Particle* p = particles[i];
+
+		double distance = plane->getDistance(p->getPosition(), size);
+		if (abs(distance) < this->size && plane->inBounds(p->getPosition())) {
+			auto normal = plane->getNormal();
+			if (distance < 0) {
+				normal *= -1;
+			}
+			contact->contactNormal = normal;
+			contact->particle[0] = p;
+			contact->particle[1] = NULL;
+			contact->penetration = size - abs(distance);
+			contact->restitution = 1.0;
+			count++;
+		}	
+		if (count >= limit) return count;
+	}
+	return count;
+}
