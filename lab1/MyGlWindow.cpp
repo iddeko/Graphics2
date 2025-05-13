@@ -8,13 +8,15 @@
 
 #include "timing.h"
 #include "MyContact.h"
+#include "ParticleCollision.h"
 
 static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
 MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
-	Fl_Gl_Window(x, y, w, h)
+	Fl_Gl_Window(x, y, w, h),
+	world(cyclone::ParticleWorld(4, 4))
 	//==========================================================================
 {
 
@@ -29,30 +31,57 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { Mover() };
+	movers = { Mover(), Mover() };
 	fireworks = { };
 
-	cyclone::MyGroundContact* c = new cyclone::MyGroundContact();
-	for (Mover &m : movers) {
-		c->init(m.particle, 2.0);
-	}
-	m_contactGenerators.push_back(c);
-	m_resolver = new cyclone::ParticleContactResolver(4);
+	movers[1].particle->setPosition(8., 25., 0.);
 
-//	movers[0].setConnection(movers[1]);
+	for (Mover& m : movers) {
+		world.getParticles().push_back(m.particle);
+		cyclone::ParticleGravity* gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
+		cyclone::ParticleDrag* drag = new cyclone::ParticleDrag(0.1, 0.01);
+		
+		world.getForceRegistry().add(m.particle, gravity);
+		world.getForceRegistry().add(m.particle, drag);
+	}
+
+	for (Mover& m : movers) {
+		cyclone::MyGroundContact* groundContact = new cyclone::MyGroundContact();
+		groundContact->init(m.particle, 2.0);
+		world.getContactGenerators().push_back(groundContact);
+	}
+
+	//m_resolver = new cyclone::ParticleContactResolver(4);
+	
+	
+	//movers[0].setConnection(movers[1]);
 //	movers[1].setConnection(movers[2]);
 //	movers[2].setConnection(movers[3]);
 
-//	movers[1].setConnection(movers[0]);
+	//movers[1].setConnection(movers[0]);
 //	movers[2].setConnection(movers[1]);
 //	movers[3].setConnection(movers[2]);
 	//this->anchorPos = { 7, 15, 8 };
+
+	cyclone::MySpring* spring1 = new cyclone::MySpring(movers[0].particle, 5, 5);
+	cyclone::MySpring* spring2 = new cyclone::MySpring(movers[1].particle, 5, 5);
+	world.getForceRegistry().add(movers[1].particle, spring1);
+	world.getForceRegistry().add(movers[0].particle, spring2);
+
 	plane = Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
-	cyclone::MyPlaneContact* p = new cyclone::MyPlaneContact(&plane.value());
+
 	for (Mover& m : movers) {
-		p->init(m.particle, 2.0);
+		cyclone::MyPlaneContact* planeCollision = new cyclone::MyPlaneContact(&plane.value());
+		planeCollision->init(m.particle, 2.0);
+		world.getContactGenerators().push_back(planeCollision);
 	}
-	m_contactGenerators.push_back(p);
+
+	
+	cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision();
+	particleCollision->particle[0] = movers[0].particle;
+	particleCollision->particle[1] = movers[1].particle;
+	world.getContactGenerators().push_back(particleCollision);
+	
 
 	//fireworks.push_back(Firework());
 	//movers[0].setAnchorConnection(&this->anchorPos, 2, 4);
@@ -196,12 +225,14 @@ void MyGlWindow::draw()
 
 	glDisable(GL_BLEND);
 
-	//glBegin(GL_LINE_STRIP);
-	//for (unsigned int i = 0; i < movers.size(); i++) {
-	//	cyclone::Vector3 p = movers[i].particle->getPosition();
-	//	glVertex3f(p.x, p.y, p.z);
-	//}
-	//glEnd();
+	glLineWidth(2.0f);
+	glBegin(GL_LINE_STRIP);
+	glColor3f(1, 1, 1);
+	for (unsigned int i = 0; i < movers.size(); i++) {
+		cyclone::Vector3 p = movers[i].particle->getPosition();
+		glVertex3f(p.x, p.y, p.z);
+	}
+	glEnd();
 
 
 
@@ -272,6 +303,9 @@ void MyGlWindow::update()
 		firework.update(duration);
 	}
 
+	world.runPhysics(duration);
+	/*
+
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
 			if (plane.has_value()) {
@@ -282,7 +316,7 @@ void MyGlWindow::update()
 		}
 	}
 
-	unsigned maxPossibleContact = 2;
+	unsigned maxPossibleContact = 4;
 	unsigned limit = maxPossibleContact; //1 : why? we have only 1 floor and 1 particle
 	cyclone::ParticleContact* nextContact = m_contact; //cyclone::ParticleContact starting pointer
 	for (auto g = m_contactGenerators.begin(); g != m_contactGenerators.end(); g++) {
@@ -295,9 +329,11 @@ void MyGlWindow::update()
 	}
 	int num = maxPossibleContact - limit;
 	if (num > 0) {
+		assert(m_resolver != 0 && uintptr_t(m_resolver) != 0xFFFFFFFFFFFFFFFF);
 		m_resolver->setIterations(num * 2);
 		m_resolver->resolveContacts(m_contact, num, duration);
 	}
+	*/
 }
 
 void MyGlWindow::step()

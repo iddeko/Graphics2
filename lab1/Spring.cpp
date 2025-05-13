@@ -1,5 +1,6 @@
 #include "Spring.h"
 #include "cyclone.h"
+#include <iostream>
 
 cyclone::MySpring::MySpring(cyclone::Particle* p, double springConstant, double restLenght) : ParticleForceGenerator()
 {
@@ -16,7 +17,7 @@ void cyclone::MySpring::updateForce(cyclone::Particle* particle, double duration
 
 	// Calculate the magnitude of the force
 	real magnitude = force.magnitude();
-	magnitude = real_abs(magnitude - restLength);
+	magnitude = std::max(magnitude - this->restLength, (double)0);
 	magnitude *= springConstant;
 
 	// Calculate the final force and apply it
@@ -53,7 +54,7 @@ void cyclone::MyAnchoredSpring::updateForce(Particle* particle, real duration)
 
 	// Calculate the magnitude of the force
 	real magnitude = force.magnitude();
-	magnitude = real_abs(magnitude - restLength);
+	magnitude = std::max(magnitude - this->restLength, (double) 0);
 	magnitude *= springConstant;
 
 	// Calculate the final force and apply it

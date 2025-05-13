@@ -44,7 +44,7 @@ public:
 		glDisable(GL_BLEND);
 		glDisable(GL_LIGHTING);
 
-
+		/*
 		glColor3f(0, 100, 0); //Line color
 		glLineWidth(3.0f); //Line Width
 		glPushMatrix();
@@ -54,6 +54,7 @@ public:
 		glVertex3f(end.x, end.y, end.z); //Starting point
 		glEnd();
 		glPopMatrix();
+		*/
 	}
 
 	bool inBounds(cyclone::Vector3 point) {

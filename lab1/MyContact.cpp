@@ -6,29 +6,24 @@ using namespace cyclone;
 
 void cyclone::MyGroundContact::init(cyclone::Particle* p, double size) {
 	if (p) {
-		particles.push_back(p);
+		particle = p;
 	}
 	this->size = size;
 }
 
 unsigned cyclone::MyGroundContact::addContact(cyclone::ParticleContact* contact, unsigned limit) const {
-	unsigned count = 0;
-	for (int i = 0; i < particles.size(); i++) {
-		cyclone::Particle* p = particles[i];
-		cyclone::real y = p->getPosition().y;
-		cyclone::real size = this->size;
+	cyclone::Particle* p = particle;
+	cyclone::real y = p->getPosition().y;
 		
-		if (y - size < 0) {
-			contact->contactNormal = { 0., 1., 0.};
-			contact->particle[0] = p;
-			contact->particle[1] = NULL;
-			contact->penetration = size - y;
-			contact->restitution = 1.0;
-			count++;
-		}
-		if (count >= limit) return count;
+	if (y - this->size < 0) {
+		contact->contactNormal = { 0., 1., 0. };
+		contact->particle[0] = p;
+		contact->particle[1] = NULL;
+		contact->penetration = this->size - y;
+		contact->restitution = 1.0;
+		return 1;
 	}
-	return count;
+	return 0;
 }
 
 cyclone::MyPlaneContact::MyPlaneContact(Plane *p) {
@@ -37,7 +32,7 @@ cyclone::MyPlaneContact::MyPlaneContact(Plane *p) {
 
 void cyclone::MyPlaneContact::init(cyclone::Particle* p, double size) {
 	if (p) {
-		particles.push_back(p);
+		particle = p;
 	}
 	this->size = size;
 }
@@ -46,25 +41,20 @@ unsigned cyclone::MyPlaneContact::addContact(cyclone::ParticleContact* contact, 
 	if (plane == NULL) {
 		return 0;
 	}
-	unsigned count = 0;
+	cyclone::Particle* p = particle;
 
-	for (int i = 0; i < particles.size(); i++) {
-		cyclone::Particle* p = particles[i];
-
-		double distance = plane->getDistance(p->getPosition(), size);
-		if (abs(distance) < this->size && plane->inBounds(p->getPosition())) {
-			auto normal = plane->getNormal();
-			if (distance < 0) {
-				normal *= -1;
-			}
-			contact->contactNormal = normal;
-			contact->particle[0] = p;
-			contact->particle[1] = NULL;
-			contact->penetration = size - abs(distance);
-			contact->restitution = 1.0;
-			count++;
-		}	
-		if (count >= limit) return count;
-	}
-	return count;
+	double distance = plane->getDistance(p->getPosition(), size);
+	if (abs(distance) < this->size && plane->inBounds(p->getPosition())) {
+		auto normal = plane->getNormal();
+		if (distance < 0) {
+			normal *= -1;
+		}
+		contact->contactNormal = normal;
+		contact->particle[0] = p;
+		contact->particle[1] = NULL;
+		contact->penetration = size - abs(distance);
+		contact->restitution = 1.0;
+		return 1;
+	}	
+	return 0;
 }

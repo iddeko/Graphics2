@@ -26,6 +26,7 @@
 #include <Plane.h>
 
 #include "Firework.h"
+#include "ParticleCollision.h"
 #include "MyContact.h"
 
 
@@ -54,11 +55,13 @@ private:
 	std::optional<Plane> plane;
 	std::vector<Firework> fireworks;
 
-	cyclone::ParticleContact m_contact[2]; //maximum #of collisions possible = 2
+	//cyclone::ParticleContact m_contact[4]; //maximum #of collisions possible = 2
 	//Container for many different kinds of contacts
-	std::vector<cyclone::ParticleContactGenerator*> m_contactGenerators;
+	//std::vector<cyclone::ParticleContactGenerator*> m_contactGenerators;
 	//Collision resolver(calculate impulse and change velocity and positions)
-	cyclone::ParticleContactResolver* m_resolver;
+	//cyclone::ParticleContactResolver* m_resolver = nullptr;
+
+	cyclone::ParticleWorld world;
 	
 	int handle(int);				// standard FlTk
 

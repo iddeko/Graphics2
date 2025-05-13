@@ -33,8 +33,8 @@ public:
 	cyclone::ParticleForceRegistry *forces;
 	cyclone::ParticleGravity *gravity;
 	cyclone::ParticleDrag *drag;
-	cyclone::MySpring* spring = NULL;
-	cyclone::MyAnchoredSpring* anchor_spring = NULL;
+	//cyclone::MySpring* spring = NULL;
+	//cyclone::MyAnchoredSpring* anchor_spring = NULL;
 
 	float size = 2;
 	Mover() {
@@ -52,13 +52,14 @@ public:
 		forces->add(particle, drag);
 
 		//particle->setVelocity(0., 0., 0.);
-		particle->setDamping(1.);
+		particle->setDamping(0.7);
 		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
 	~Mover() {};
 	
+	/*
 	void setConnection(Mover &a) {
-		this->spring = new cyclone::MySpring(a.particle, (double)20, (double)3);
+		this->spring = new cyclone::MySpring(a.particle, (double)20, (double)5);
 		forces->add(this->particle, this->spring);
 	}
 
@@ -66,6 +67,7 @@ public:
 		this->anchor_spring = new cyclone::MyAnchoredSpring(anchor, springConstant, restLength);
 		forces->add(this->particle, this->anchor_spring);
 	}
+	*/
 
 	void stop() {}
 

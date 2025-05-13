@@ -8,7 +8,7 @@
 namespace cyclone {
 class MyGroundContact : public cyclone::ParticleContactGenerator
 {
-	std::vector<cyclone::Particle*> particles; //Container for all particles
+	cyclone::Particle* particle; //Container for all particles
 	double size; //particle size(all particles have a same size)
 public:
 	MyGroundContact() {};
@@ -21,7 +21,7 @@ public:
 
 class MyPlaneContact :public cyclone::ParticleContactGenerator
 {
-	std::vector<cyclone::Particle*> particles;
+	cyclone::Particle* particle;
 	double size; //size of the particle
 	Plane *plane; //vertices of the plane
 	cyclone::Vector3 contactNormal; //Normal of the plane

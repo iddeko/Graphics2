@@ -129,7 +129,7 @@ ParticleContactResolver::ParticleContactResolver(unsigned iterations) : iteratio
 
 void ParticleContactResolver::setIterations(unsigned iterations)
 {
-    ParticleContactResolver::iterations = iterations;
+    this->iterations = iterations;
 }
 
 void ParticleContactResolver::resolveContacts(ParticleContact *contactArray,
