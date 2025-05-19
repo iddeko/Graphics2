@@ -35,8 +35,10 @@ public:
 	cyclone::ParticleDrag *drag;
 	//cyclone::MySpring* spring = NULL;
 	//cyclone::MyAnchoredSpring* anchor_spring = NULL;
+	cyclone::Vector3* anchor;
+	cyclone::Matrix4 transformMatrix;
 
-	float size = 2;
+	float size = 0.5;
 	Mover() {
 		particle = new cyclone::Particle();
 		particle->setPosition(3., 19., 0.);
@@ -106,6 +108,26 @@ public:
 		particle->setVelocity(vel);
 	}
 
+	void Mover::getGLTransform(float matrix[16])
+	{
+		matrix[0] = (float)transformMatrix.data[0];
+		matrix[1] = (float)transformMatrix.data[4];
+		matrix[2] = (float)transformMatrix.data[8];
+		matrix[3] = 0;
+		matrix[4] = (float)transformMatrix.data[1];
+		matrix[5] = (float)transformMatrix.data[5];
+		matrix[6] = (float)transformMatrix.data[9];
+		matrix[7] = 0;
+		matrix[8] = (float)transformMatrix.data[2];
+		matrix[9] = (float)transformMatrix.data[6];
+		matrix[10] = (float)transformMatrix.data[10];
+		matrix[11] = 0;
+		matrix[12] = (float)transformMatrix.data[3];
+		matrix[13] = (float)transformMatrix.data[7];
+		matrix[14] = (float)transformMatrix.data[11];
+		matrix[15] = 1;
+	}
+
 	void draw(int shadow, int name) {
 		cyclone::Vector3 position = particle->getPosition();
 
@@ -114,9 +136,13 @@ public:
 		} else {
 			glColor3f(1.f, 0.1f, 0.1f);
 		}
+		float mat[16];
+		this->getGLTransform(mat);
+
 		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
-		glutSolidSphere(size, 30, 30);
+		glutSolidCube(size);
+		//glutSolidSphere(size, 30, 30);
 		glPopMatrix();
 	}
 };

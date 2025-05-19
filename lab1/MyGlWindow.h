@@ -62,12 +62,14 @@ private:
 	//cyclone::ParticleContactResolver* m_resolver = nullptr;
 
 	cyclone::ParticleWorld world;
+	cyclone::Vector3 prevPoint = { 0, 0, 0 };
 	
 	int handle(int);				// standard FlTk
 
 	float fieldOfView;
 	Viewer *m_viewer;
 	std::vector<Mover> movers;
+	std::vector<cyclone::Particle *> particles;
 
 	void setProjection(int clearProjection = 1);
 	void getMouseNDC(float& x, float& y);
