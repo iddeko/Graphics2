@@ -43,6 +43,7 @@ public:
 	void step();
 	void test();
 	int selected;
+	void testValue(double t);
 
 private:
 	void draw();					// standard FlTk

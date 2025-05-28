@@ -48,7 +48,7 @@ void idleCB(void* w)
 
 void but_cb(Fl_Widget* o, void*data)
 {
-	Fl_Button* b = (Fl_Button*)o; //캐스팅이 반드시 필요
+	Fl_Button* b = (Fl_Button*)o;
 	MyGlWindow * win = (MyGlWindow *)data;
 	if (b->value())
 		win->run = 1;
@@ -57,9 +57,17 @@ void but_cb(Fl_Widget* o, void*data)
 	win->damage(1);
 }
 
+void but_cb3(Fl_Widget* o, void* data)
+{
+	Fl_Value_Slider* b = (Fl_Value_Slider*)o; //???? ??? ??
+	MyGlWindow* win = (MyGlWindow*)data;
+	win->testValue(b->value());
+	win->damage(1);
+}
+
 void but_cb_step(Fl_Widget* o, void* data)
 {
-	Fl_Button* b = (Fl_Button*)o; //캐스팅이 반드시 필요
+	Fl_Button* b = (Fl_Button*)o;
 	MyGlWindow* win = (MyGlWindow*)data;
 	win->run = 0;
 	test->value(0);
@@ -114,6 +122,9 @@ int main()
 	Fl_Button * test2 = new Fl_Button(width - 400, height - 40, 100, 20, "Test");
 	test2->callback(but_cb2, gl);
 
+	Fl_Value_Slider* test3 = new Fl_Value_Slider(width - 200, height - 40, 150, 20, "Test");
+	test3->type(FL_HORIZONTAL);
+	test3->callback(but_cb3, gl);
 
 	wind->end();
 

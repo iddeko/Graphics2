@@ -29,19 +29,26 @@
 
 class Mover {
 public:
-	cyclone::Particle *particle;
-	cyclone::ParticleForceRegistry *forces;
-	cyclone::ParticleGravity *gravity;
-	cyclone::ParticleDrag *drag;
+	cyclone::Particle* particle;
+	cyclone::ParticleForceRegistry* forces;
+	cyclone::ParticleGravity* gravity;
+	cyclone::ParticleDrag* drag;
 	//cyclone::MySpring* spring = NULL;
 	//cyclone::MyAnchoredSpring* anchor_spring = NULL;
 	cyclone::Vector3* anchor;
+
 	cyclone::Matrix4 transformMatrix;
+	cyclone::Vector3 angularVelocity = { 0, 0.1, 0 };
+	cyclone::Quaternion orientation;
+
+	cyclone::Matrix3 inverseInertiaMatrix; //Inverse of local Inertia matrix
+	cyclone::Vector3 torqueAccum; //Torque
+	cyclone::Matrix3 inverseInertiaTensorWorld; //World local inverse of Inertia
 
 	float size = 0.5;
 	Mover() {
 		particle = new cyclone::Particle();
-		particle->setPosition(3., 19., 0.);
+		particle->setPosition(0., 0., 0.);
 		
 		particle->setMass(1.);
 		particle->setVelocity(0.0f, 0.0f, 0.0f);
@@ -55,6 +62,16 @@ public:
 
 		//particle->setVelocity(0., 0., 0.);
 		particle->setDamping(0.7);
+
+		cyclone::Matrix3 inertiaMatrix;
+		inertiaMatrix.setBlockInertiaTensor(cyclone::Vector3(2, 1, 1), 3.0);
+
+		this->inverseInertiaMatrix = inertiaMatrix.inverse();
+
+		cyclone::Matrix3 orintationMatrix;
+		orintationMatrix.setOrientation(this->orientation);
+		cyclone::Matrix3 transpose = orintationMatrix.transpose();
+		this->inverseInertiaTensorWorld = orintationMatrix * this->inverseInertiaMatrix * transpose;
 		//particle->setAcceleration(cyclone::Vector3::GRAVITY);
 	};
 	~Mover() {};
@@ -75,10 +92,21 @@ public:
 
 	void update(float duration, Plane *plane) {
 		//particle->addForce(cyclone::Vector3(1., 0., 0.));
-		forces->updateForces(duration);
-		particle->integrate(duration);
+		//forces->updateForces(duration);
+		//particle->integrate(duration);
 	 	checkEdges();
+		cyclone::Vector3 angularAcceleration(0, 0.1, 0);
+		angularAcceleration =
+			inverseInertiaTensorWorld.transform(torqueAccum);
+		angularVelocity.addScaledVector(angularAcceleration, duration); 
+		double angularDamping = 0.9;
+		angularVelocity *= real_pow(angularDamping, duration);
+		orientation.addScaledVector(angularVelocity, duration);
+		orientation.normalise(); 
+		transformMatrix.setOrientationAndPos(orientation, cyclone::Vector3(0, 6, 0));
 
+
+		torqueAccum.clear();
 	}
 
 	void checkEdges() {
@@ -128,6 +156,11 @@ public:
 		matrix[15] = 1;
 	}
 
+	void addTorque(cyclone::Vector3 force, cyclone::Vector3 point) {
+		cyclone::Vector3 d = point - particle->getPosition();
+		torqueAccum = d.cross(force);
+	}
+
 	void draw(int shadow, int name) {
 		cyclone::Vector3 position = particle->getPosition();
 
@@ -141,8 +174,44 @@ public:
 
 		glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
+		glMultMatrixf(mat);
+		glScalef(2, 1, 1);
 		glutSolidCube(size);
 		//glutSolidSphere(size, 30, 30);
 		glPopMatrix();
+
+		if (shadow != 1) {
+			glColor3f(1, 0, 0); //Line color
+			glLineWidth(3.0f); //Line Width
+			glPushMatrix();
+			glMultMatrixf(mat);
+			glBegin(GL_LINES);
+			glVertex3f(0, 0, 0); //Starting point
+			glVertex3f(0, 0 + 3, 0); //Ending point
+			glEnd();
+			glPopMatrix();
+
+			glColor3f(0, 1, 0); //Line color
+			glLineWidth(3.0f); //Line Width
+			glPushMatrix();
+			glMultMatrixf(mat);
+			glBegin(GL_LINES);
+			glVertex3f(0, 0, 0); //Starting point
+			glVertex3f(0 + 3, 0, 0); //Ending point
+			glMultMatrixf(mat);
+			glEnd();
+			glPopMatrix();
+
+			glColor3f(0, 0, 1); //Line color
+			glLineWidth(3.0f); //Line Width
+			glPushMatrix();
+			glMultMatrixf(mat);
+			glBegin(GL_LINES);
+			glVertex3f(0, 0, 0); //Starting point
+			glVertex3f(0, 0, 0 + 3); //Ending point
+			glMultMatrixf(mat);
+			glEnd();
+			glPopMatrix();
+		}
 	}
 };

@@ -4,6 +4,7 @@
 #include "Object.h"
 #include <iostream>
 #include "drawUtils.h"
+#include <cmath>
 
 
 #include "timing.h"
@@ -14,9 +15,23 @@ static double DEFAULT_VIEW_POINT[3] = { 30, 30, 30 };
 static double DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };
 static double DEFAULT_UP_VECTOR[3] = { 0, 1, 0 };
 
+float lerp(float a, float b, float f)
+{
+	return a * (1.0 - f) + (b * f);
+}
+
+void MyGlWindow::testValue(double t) {
+	//const float degrees2Radians = 3.141592f / 180;
+
+	//auto& m = this->movers[1];
+	//m.orientation = cyclone::Quaternion::slerp(this->movers[0].orientation, this->movers[2].orientation, t);
+	//m.transformMatrix.setOrientationAndPos(m.orientation, cyclone::Vector3(0, lerp(1.5, 10.5, t), 0));
+	
+}
+
 MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	Fl_Gl_Window(x, y, w, h),
-	world(cyclone::ParticleWorld(12*10, 4))
+	world(cyclone::ParticleWorld(12 * 10, 4))
 	//==========================================================================
 {
 
@@ -31,119 +46,53 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	float aspect = (w / (float)h);
 	m_viewer = new Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
 
-	movers = { };
-
-	for (int i = 0; i != 12; i++) {
-		movers.push_back(Mover());
-		cyclone::Vector3 pos;
-		if ((i % 2 == 0)) {
-			pos = { (float)i - 5., 8, 1. };
-		} else {
-			pos = { (float)i - 6., 8., -1. };
-		}
-		movers[i].particle->setPosition(pos);
-		world.getParticles().push_back(movers[i].particle);
+	movers = { Mover() };
+	//movers = { Mover(), Mover(), Mover() };
+	/*
+	for (auto& m : movers) {
+		world.getParticles().push_back(m.particle);
 		cyclone::ParticleGravity* gravity = new cyclone::ParticleGravity(cyclone::Vector3(0, -10, 0));
 		cyclone::ParticleDrag* drag = new cyclone::ParticleDrag(0.1, 0.01);
 
-		world.getForceRegistry().add(movers[i].particle, gravity);
-		world.getForceRegistry().add(movers[i].particle, drag);
+		world.getForceRegistry().add(m.particle, gravity);
+		world.getForceRegistry().add(m.particle, drag);
 
 		cyclone::MyGroundContact* groundContact = new cyclone::MyGroundContact();
-		groundContact->init(movers[i].particle, 0.5);
+		groundContact->init(m.particle, 0.5);
 		world.getContactGenerators().push_back(groundContact);
-		float x;
-
-		switch (std::abs((long) pos.x)) {
-		case 5:
-			x = 3;
-			break;
-		case 3:
-			x = 3.5;
-			break;
-		case 1:
-			x = 4;
-			break;
-		default:
-			break;
-		} 
-		movers[i].anchor = new cyclone::Vector3(pos);
-		cyclone::ParticleCableConstraint* support = new cyclone::ParticleCableConstraint();
-		support->particle = movers[i].particle;
-		support->anchor = *movers[i].anchor;
-		support->maxLength = x;
-		support->restitution = 0.5f;
-		world.getContactGenerators().push_back(support);
-
 	}
 	fireworks = { };
+ 
+	const float degrees2Radians = 3.141592f / 180;
+	Must input a 1/2 angle that you want to rotate
+	auto *m = &movers[0];
+	m->orientation.r = cos(degrees2Radians * 0.0f);
+	cyclone::Vector3 v =
+		cyclone::Vector3(1, 0, 0) * sin(degrees2Radians * -45.0f);
+	m->orientation.i = v.x;
+	m->orientation.j = v.y;
+	m->orientation.k = v.z;
+	m->orientation.normalise();
+	m->transformMatrix.setOrientationAndPos(m->orientation, cyclone::Vector3(0, 1.5, 0));
 
-	//m_resolver = new cyclone::ParticleContactResolver(4);
-	
-	
-	//movers[0].setConnection(movers[1]);
-//	movers[1].setConnection(movers[2]);
-//	movers[2].setConnection(movers[3]);
+	m = &movers[1];
+	m->orientation.r = cos(degrees2Radians * 0.0f);
+	v = cyclone::Vector3(1, 0, 0) * sin(degrees2Radians * -45.0f);
+	m->orientation.i = v.x;
+	m->orientation.j = v.y;
+	m->orientation.k = v.z;
+	m->orientation.normalise();
+	m->transformMatrix.setOrientationAndPos(m->orientation, cyclone::Vector3(0, 1.5, 0));
 
-	//movers[1].setConnection(movers[0]);
-//	movers[2].setConnection(movers[1]);
-//	movers[3].setConnection(movers[2]);
-	//this->anchorPos = { 7, 15, 8 };
-	for (unsigned int i = 0; i < movers.size(); i += 2) {
-		cyclone::Particle* particleA = movers[i].particle;
-		cyclone::Particle* particleB = movers[i + 1].particle;
-		cyclone::ParticleRod* rod1 = new cyclone::ParticleRod();
-		rod1->particle[0] = particleA;
-		rod1->particle[1] = particleB;
-		rod1->length = 2.0f;
-		cyclone::ParticleRod* rod2 = new cyclone::ParticleRod();
-		rod2->particle[0] = particleB;
-		rod2->particle[1] = particleA;
-		rod2->length = 2.0f;
-		world.getContactGenerators().push_back(rod1);
-		world.getContactGenerators().push_back(rod2);
-	}
-
-
-	for (unsigned int i = 0; i < movers.size() - 2; i += 2) {
-		cyclone::Particle *particleA = movers[i].particle;
-		cyclone::Particle *particleB = movers[i + 2].particle;
-		cyclone::ParticleCable* cable1 = new cyclone::ParticleCable();
-		cable1->particle[0] = particleA;
-		cable1->particle[1] = particleB;
-		cable1->maxLength = 3.0f;
-		cable1->restitution = 0.1f;
-		cyclone::ParticleCable* cable2 = new cyclone::ParticleCable();
-		cable2->particle[0] = particleB;
-		cable2->particle[1] = particleA;
-		cable2->maxLength = 3.0f;
-		cable2->restitution = 0.1f;
-		world.getContactGenerators().push_back(cable1);
-		world.getContactGenerators().push_back(cable2);
-	}
-
-	for (unsigned int i = 0; i < movers.size() - 3; i += 2) {
-		cyclone::Particle* particleA = movers[i + 1].particle;
-		cyclone::Particle* particleB = movers[i + 3].particle;
-		cyclone::ParticleCable* cable1 = new cyclone::ParticleCable();
-		cable1->particle[0] = particleA;
-		cable1->particle[1] = particleB;
-		cable1->maxLength = 3.0f;
-		cable1->restitution = 0.1f;
-		cyclone::ParticleCable* cable2 = new cyclone::ParticleCable();
-		cable2->particle[0] = particleB;
-		cable2->particle[1] = particleA;
-		cable2->maxLength = 3.0f;
-		cable2->restitution = 0.1f;
-		world.getContactGenerators().push_back(cable1);
-		world.getContactGenerators().push_back(cable2);
-	}
-
-	cyclone::MySpring* spring1 = new cyclone::MySpring(movers[0].particle, 5, 5);
-	cyclone::MySpring* spring2 = new cyclone::MySpring(movers[1].particle, 5, 5);
-	world.getForceRegistry().add(movers[1].particle, spring1);
-	world.getForceRegistry().add(movers[0].particle, spring2);
-
+	m = &movers[2];
+	m->orientation.r = cos(degrees2Radians * 0.0f);
+	v = cyclone::Vector3(1, 1, 0) * sin(degrees2Radians * 45.0f);
+	m->orientation.i = v.x;
+	m->orientation.j = v.y;
+	m->orientation.k = v.z;
+	m->orientation.normalise();
+	m->transformMatrix.setOrientationAndPos(m->orientation, cyclone::Vector3(0, 10.5, 0));
+	*/
 	/*
 	plane = Plane(cyclone::Vector3(20., 0., -25.), cyclone::Vector3(20., 0., 25.), cyclone::Vector3(-20., 30., 25.), cyclone::Vector3(-20., 30., -25.));
 
@@ -153,11 +102,12 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 		world.getContactGenerators().push_back(planeCollision);
 	}
 	*/
-	
-	cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision();
-	particleCollision->particle[0] = movers[0].particle;
-	particleCollision->particle[1] = movers[1].particle;
-	world.getContactGenerators().push_back(particleCollision);
+
+	//cyclone::ParticleCollision* particleCollision = new cyclone::ParticleCollision();
+	//particleCollision->particle[0] = movers[0].particle;
+	//particleCollision->particle[1] = movers[1].particle;
+	//world.getContactGenerators().push_back(particleCollision);
+
 	
 
 	//fireworks.push_back(Firework());
@@ -166,6 +116,10 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	TimingData::init();
 	run = 0;
 	selected = -1;
+}
+
+void testValue(double t) {
+
 }
 
 
@@ -312,41 +266,6 @@ void MyGlWindow::draw()
 	glEnd();
 	*/
 
-	glLineWidth(1.f);
-	glColor3f(0.5, 0.5, 0.5);
-	glBegin(GL_LINES);
-	for (unsigned int i = 0; i < movers.size(); i++) {
-			cyclone::Vector3 p = movers[i].particle->getPosition();
-			glVertex3f(movers[i].anchor->x, movers[i].anchor->y, movers[i].anchor->z);
-			glVertex3f(p.x, p.y, p.z);
-	}
-	glEnd();
-
-	glBegin(GL_LINES);
-	glColor3f(0., 0., 0.7);
-	for (unsigned int i = 0; i < movers.size(); i += 2) {
-		cyclone::Vector3 p1 = movers[i].particle->getPosition();
-		cyclone::Vector3 p2 = movers[i + 1].particle->getPosition();
-		glVertex3f(p1.x, p1.y, p1.z);
-		glVertex3f(p2.x, p2.y, p2.z);
-	}
-
-	glColor3f(0., 0.7, 0.);
-	for (unsigned int i = 0; i < movers.size() - 2; i += 2) {
-		cyclone::Vector3 p1 = movers[i].particle->getPosition();
-		cyclone::Vector3 p2 = movers[i + 2].particle->getPosition();
-		glVertex3f(p1.x, p1.y, p1.z);
-		glVertex3f(p2.x, p2.y, p2.z);
-	}
-
-	for (unsigned int i = 0; i < movers.size() - 3; i += 2) {
-		cyclone::Vector3 p1 = movers[i + 1].particle->getPosition();
-		cyclone::Vector3 p2 = movers[i + 3].particle->getPosition();
-		glVertex3f(p1.x, p1.y, p1.z);
-		glVertex3f(p2.x, p2.y, p2.z);
-	}
-	glEnd();
-
 	/*
 	auto &pos = this->movers[0].particle->getPosition();
 
@@ -398,7 +317,10 @@ void MyGlWindow::draw()
 void MyGlWindow::test()
 {
 	//movers = { Mover() };
-	fireworks.push_back(Firework());
+	//fireworks.push_back(Firework());
+	for (int i = 0; i < movers.size(); i++) {
+		movers[i].addTorque(cyclone::Vector3(0, 0, 100), cyclone::Vector3(1.9, 0, 0));
+	}
 }
 
 void MyGlWindow::update()
@@ -416,7 +338,7 @@ void MyGlWindow::update()
 	}
 
 	world.runPhysics(duration);
-	/*
+	
 
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
@@ -427,7 +349,7 @@ void MyGlWindow::update()
 			}
 		}
 	}
-
+	/*
 	unsigned maxPossibleContact = 4;
 	unsigned limit = maxPossibleContact; //1 : why? we have only 1 floor and 1 particle
 	cyclone::ParticleContact* nextContact = m_contact; //cyclone::ParticleContact starting pointer
