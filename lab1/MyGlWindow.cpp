@@ -118,11 +118,6 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 	selected = -1;
 }
 
-void testValue(double t) {
-
-}
-
-
 void MyGlWindow::setupLight(float x, float y, float z)
 {
 
@@ -318,8 +313,9 @@ void MyGlWindow::test()
 {
 	//movers = { Mover() };
 	//fireworks.push_back(Firework());
+	cyclone::Vector3 v{ 1., 1. , 0. };
 	for (int i = 0; i < movers.size(); i++) {
-		movers[i].addTorque(cyclone::Vector3(0, 0, 100), cyclone::Vector3(1.9, 0, 0));
+		movers[i].body->addForceAtBodyPoint(v * 300, cyclone::Vector3(1, 1, 1));
 	}
 }
 
@@ -343,9 +339,9 @@ void MyGlWindow::update()
 	for (int i = 0; i != movers.size(); i++) {
 		if (i != this->selected) {
 			if (plane.has_value()) {
-				movers[i].update(duration, &plane.value());
+				movers[i].update(duration);
 			} else {
-				movers[i].update(duration, NULL);
+				movers[i].update(duration);
 			}
 		}
 	}
@@ -382,10 +378,10 @@ void MyGlWindow::step()
 
 	for (auto& mover : movers) {
 		if (plane.has_value()) {
-			mover.update(duration, &plane.value());
+			mover.update(duration);
 		}
 		else {
-			mover.update(duration, NULL);
+			mover.update(duration);
 		}
 	}
 	std::cout << "step" << std::endl;
@@ -490,11 +486,11 @@ int MyGlWindow::handle(int e)
 			doPick();
 
 			if (selected >= 0) {
-				std::cout << "picked" << std::endl;
-				ui->value(0);
-				this->run = 1;
-				pickingStartTime = clock();
-				pickingStartPos = movers[selected].particle->getPosition();
+				//std::cout << "picked" << std::endl;
+				//ui->value(0);
+				//this->run = 1;
+				//pickingStartTime = clock();
+				//pickingStartPos = movers[selected].particle->getPosition();
 			}
 			damage(1);
 			return 1;
@@ -509,11 +505,11 @@ int MyGlWindow::handle(int e)
 		if (selected >= 0) {
 			ui->value(1);
 			this->run = 1;
-			cyclone::Vector3 pickingEndPos = movers[selected].particle->getPosition();
-			clock_t pickingEndTime = clock();
+			//cyclone::Vector3 pickingEndPos = movers[selected].particle->getPosition();
+			//clock_t pickingEndTime = clock();
 
 			//movers[selected].particle->setVelocity((pickingEndPos - pickingStartPos) / (pickingEndTime - pickingStartTime) * CLOCKS_PER_SEC / 2);
-			prevPoint.x = prevPoint.y = prevPoint.z = 0;
+			//prevPoint.x = prevPoint.y = prevPoint.z = 0;
 			selected = -1;
 		}
 		m_pressedMouseButton = -1;
@@ -524,7 +520,7 @@ int MyGlWindow::handle(int e)
 	{
 
 		if (selected >= 0 && m_pressedMouseButton == 1) {
-			double r1x, r1y, r1z, r2x, r2y, r2z;
+			/*double r1x, r1y, r1z, r2x, r2y, r2z;
 			getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
 
 			double rx, ry, rz;
@@ -544,8 +540,8 @@ int MyGlWindow::handle(int e)
 			prevPoint.y = ry;
 			prevPoint.z = rz;
 
-			//movers[selected].particle->setPosition(rx, ry, rz);
-			damage(1);
+			movers[selected].particle->setPosition(rx, ry, rz);
+			damage(1);*/
 		}
 		else {
 
